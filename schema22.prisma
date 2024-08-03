@@ -1,0 +1,142 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password        String
+  role            UserRole
+  profile         Profile?
+  developerProjects Project[]
+  workerApplications Application[]
+  sentMessages    Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  penalties       Penalty[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum UserRole {
+  DEVELOPER
+  WORKER
+  ADMIN
+}
+
+model Profile {
+  id           String  @id @default(uuid())
+  userId       String  @unique
+  user         User    @relation(fields: [userId], references: [id])
+  firstName    String
+  lastName     String
+  phone        String?
+  avatar       String?
+  bio          String?
+  skills       Skill[]
+  experience   String?
+  education    String?
+  certifications String?
+}
+
+model Project {
+  id          String  @id @default(uuid())
+  name        String
+  description String
+  developerId String
+  developer   User    @relation(fields: [developerId], references: [id])
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  payment      Int
+  startDate    DateTime
+  endDate      DateTime?
+  status       OrderStatus
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id])
+  requirements Requirement[]
+  applications Application[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum OrderStatus {
+  SEARCHING
+  IN_PROGRESS
+  WAITING_CONFIRMATION
+  COMPLETED
+  CANCELLED
+}
+
+model Requirement {
+  id      String @id @default(uuid())
+  text    String
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+}
+
+model Application {
+  id        String   @id @default(uuid())
+  workerId  String
+  worker    User     @relation(fields: [workerId], references: [id])
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  status    ApplicationStatus
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Skill {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  profiles Profile[]
+}
+
+model Penalty {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  description String
+  amount      Int
+  date        DateTime
+  createdAt   DateTime @default(now())
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  content    String
+  senderId   String
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  rating       Int
+  comment      String?
+  developerId  String
+  workerId     String
+  orderId      String
+  createdAt    DateTime @default(now())
+}

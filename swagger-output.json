@@ -1,0 +1,87 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "My API",
+    "description": "Description of my API",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {},
+  "definitions": {
+    "Project": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "string"
+        },
+        "name": {
+          "type": "string",
+          "example": "string"
+        },
+        "description": {
+          "type": "string",
+          "example": "string"
+        }
+      }
+    },
+    "Order": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "string"
+        },
+        "title": {
+          "type": "string",
+          "example": "string"
+        },
+        "description": {
+          "type": "string",
+          "example": "string"
+        },
+        "cost": {
+          "type": "string",
+          "example": "number"
+        },
+        "projectId": {
+          "type": "string",
+          "example": "string"
+        },
+        "developerId": {
+          "type": "string",
+          "example": "string"
+        }
+      }
+    },
+    "NewOrder": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "string"
+        },
+        "description": {
+          "type": "string",
+          "example": "string"
+        },
+        "cost": {
+          "type": "string",
+          "example": "number"
+        },
+        "projectId": {
+          "type": "string",
+          "example": "string"
+        },
+        "developerId": {
+          "type": "string",
+          "example": "string"
+        }
+      }
+    }
+  }
+}
