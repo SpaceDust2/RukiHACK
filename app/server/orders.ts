@@ -1,9 +1,10 @@
 "use server"
 import prisma from '@/lib/prisma';
 
-export async function getOrders() {
+export async function getOrders(projectId?: number) {
   try {
     const orders = await prisma.order.findMany({
+      where: projectId ? { projectId } : {}, // Фильтрация по projectId, если он передан
       include: {
         project: true,
         developer: true,

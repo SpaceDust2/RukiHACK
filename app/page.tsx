@@ -25,7 +25,7 @@ const DeveloperDashboard: React.FC = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch("/api/projects");
+                 const response = await fetch("/api/projects");
                 if (!response.ok) {
                     throw new Error("Error fetching projects");
                 }
@@ -45,7 +45,7 @@ const DeveloperDashboard: React.FC = () => {
 
     const handleOrderCreated = () => {
         setIsCreateModalOpen(false);
-        setRefreshOrders((prev) => !prev);
+        setRefreshOrders((prev) => !prev); // Триггер обновления заказов
     };
 
     return (

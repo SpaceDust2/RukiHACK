@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getOrders, createOrder } from '@/app/server/orders';
 
 /**
@@ -104,9 +104,13 @@ import { getOrders, createOrder } from '@/app/server/orders';
  *                   type: string
  */
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const orders = await getOrders();
+    const url = new URL(request.url);
+    const projectId = parseInt(url.searchParams.get('projectId') || '');
+
+    // Передача projectId в getOrders
+    const orders = await getOrders(projectId);
     return NextResponse.json(orders);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });

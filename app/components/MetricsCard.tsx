@@ -4,7 +4,7 @@ import React from 'react';
 
 interface MetricsCardProps {
   title: string;
-  value: number | string;
+  value: number;
 }
 
 const MetricsCard: React.FC<MetricsCardProps> = ({ title, value }) => {
