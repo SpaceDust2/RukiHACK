@@ -1,43 +1,38 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { atom, useAtom } from "jotai";
 
-interface Project {
+interface Developer {
   id: number;
   name: string;
-  description: string;
+  email: string;
   createdAt: string;
 }
 
-const projectsAtom = atom<Project[]>([]);
-const isLoadingAtom = atom(true);
-const errorAtom = atom<string | null>(null);
-
-const ProjectsList: React.FC = () => {
-  const [projects, setProjects] = useAtom(projectsAtom);
-  const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
-  const [error, setError] = useAtom(errorAtom);
+const DevelopersList: React.FC = () => {
+  const [developers, setDevelopers] = useState<Developer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchDevelopers = async () => {
       try {
-        const response = await fetch("/api/projects");
+        const response = await fetch("/api/developers");
         if (!response.ok) {
-          throw new Error("Ошибка при загрузке списка проектов");
+          throw new Error("Ошибка при загрузке списка застройщиков");
         }
         const data = await response.json();
-        setProjects(data);
+        setDevelopers(data);
         setIsLoading(false);
       } catch (error) {
-        console.error("Не удалось загрузить список проектов:", error);
-        setError("Произошла ошибка при загрузке списка проектов");
+        console.error("Не удалось загрузить список застройщиков:", error);
+        setError("Произошла ошибка при загрузке списка застройщиков");
         setIsLoading(false);
       }
     };
 
-    fetchProjects();
-  }, [setProjects, setIsLoading, setError]);
+    fetchDevelopers();
+  }, []);
 
   if (isLoading) {
     return <div className="text-center py-8">Загрузка...</div>;
@@ -50,19 +45,19 @@ const ProjectsList: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-extrabold text-gray-800 mb-8">Список проектов</h1>
+        <h1 className="text-4xl font-extrabold text-gray-800 mb-8">Список застройщиков</h1>
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <table className="w-full">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Название
+                  Имя
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Описание
+                  Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Дата создания
+                  Дата регистрации
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Действия
@@ -70,21 +65,21 @@ const ProjectsList: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {projects.map((project) => (
-                <tr key={project.id}>
+              {developers.map((developer) => (
+                <tr key={developer.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{project.name}</div>
+                    <div className="text-sm font-medium text-gray-900">{developer.name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{project.description}</div>
+                    <div className="text-sm text-gray-500">{developer.email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">
-                      {new Date(project.createdAt).toLocaleDateString()}
+                      {new Date(developer.createdAt).toLocaleDateString()}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <Link href={`/projects/${project.id}`} className="text-indigo-600 hover:text-indigo-900">
+                    <Link href={`/developers/${developer.id}`} className="text-indigo-600 hover:text-indigo-900">
                       Подробнее
                     </Link>
                   </td>
@@ -98,4 +93,4 @@ const ProjectsList: React.FC = () => {
   );
 };
 
-export default ProjectsList;
+export default DevelopersList;

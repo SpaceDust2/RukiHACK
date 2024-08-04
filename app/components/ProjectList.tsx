@@ -1,7 +1,18 @@
+'use client'
 import React, { useEffect, useState } from 'react';
 
+interface Project {
+  id: number;
+  name: string;
+  description: string;
+  developer: {
+    id: number;
+    name: string;
+  };
+}
+
 const ProjectList: React.FC = () => {
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -11,7 +22,7 @@ const ProjectList: React.FC = () => {
         if (!response.ok) {
           throw new Error('Error fetching projects');
         }
-        const data = await response.json();
+        const data: Project[] = await response.json();
         setProjects(data);
       } catch (error) {
         console.error('Failed to load projects:', error);
@@ -34,11 +45,11 @@ const ProjectList: React.FC = () => {
         <p>Нет доступных проектов.</p>
       ) : (
         <ul className="space-y-4">
-          {projects.map((project: any) => (
+          {projects.map((project) => (
             <li key={project.id} className="border p-4 rounded-lg shadow">
               <h3 className="text-xl font-semibold">{project.name}</h3>
               <p>{project.description}</p>
-              <p className="text-sm text-gray-600">Developer: {project.developer?.name || 'N/A'}</p>
+              <p className="text-sm text-gray-600">Developer: {project.developer.name}</p>
             </li>
           ))}
         </ul>

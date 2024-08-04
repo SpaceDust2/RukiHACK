@@ -1,3 +1,6 @@
+import { NextResponse } from 'next/server';
+import { getOrders, createOrder } from '@/app/server/orders';
+
 /**
  * @swagger
  * /api/orders:
@@ -55,17 +58,6 @@
  *                 type: number
  *               projectId:
  *                 type: integer
- *               startDate:
- *                 type: string
- *                 format: date
- *               endDate:
- *                 type: string
- *                 format: date
- *                 nullable: true
- *               requirements:
- *                 type: array
- *                 items:
- *                   type: string
  *               status:
  *                 type: string
  *     responses:
@@ -112,10 +104,6 @@
  *                   type: string
  */
 
-import { NextResponse } from 'next/server';
-import { getOrders, createOrder } from '@/app/server/orders';
-
-// Получение списка заказов
 export async function GET() {
   try {
     const orders = await getOrders();
@@ -125,15 +113,15 @@ export async function GET() {
   }
 }
 
-// Создание нового заказа
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const orderData = {
-      ...body,
+      title: body.title,
+      description: body.description,
+      cost: Number(body.cost),
       projectId: Number(body.projectId),
-      developerId: Number(body.developerId),
-      cost: Number(body.cost)
+      status: body.status
     };
     const newOrder = await createOrder(orderData);
     return NextResponse.json(newOrder, { status: 201 });

@@ -8,8 +8,9 @@ const Sidebar = () => {
   const menuItems = [
     { title: 'Главная', path: '/', icon: '🏠' },
     { title: 'Проекты', path: '/projects', icon: '📁' },
-    { title: 'Разработчики', path: '/developers', icon: '👨‍💻' },
-    { title: 'Задачи', path: '/tasks', icon: '📝' },
+    { title: 'Застройщики', path: '/developers', icon: '👨‍💻' },
+    { title: 'Чат', path: '/chat', icon: '📝' },
+    { title: 'Дешборд', path: '/dashboard', icon:'📊'},
     { title: 'Настройки', path: '/settings', icon: '⚙️' },
   ];
 

@@ -1,13 +1,14 @@
-// Пример компонента OrderBoard
-
 import React, { useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
+import { refreshOrdersAtom } from '@/atoms';
 
 interface OrderBoardProps {
-  projectId: string;
+  projectId: number;
 }
 
 const OrderBoard: React.FC<OrderBoardProps> = ({ projectId }) => {
   const [orders, setOrders] = useState([]);
+  const [refreshOrders] = useAtom(refreshOrdersAtom);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -23,7 +24,7 @@ const OrderBoard: React.FC<OrderBoardProps> = ({ projectId }) => {
       }
     };
     fetchOrders();
-  }, [projectId]);
+  }, [projectId, refreshOrders]);
 
   return (
     <div>

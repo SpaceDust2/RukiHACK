@@ -1,22 +1,25 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setProjects, setSelectedProject } from "@/projectsSlice";
-import { RootState } from "@/store";
-import Sidebar from "@/app/components/Sidebar";
+import { useAtom } from "jotai";
+import {
+    projectsAtom,
+    selectedProjectIdAtom,
+    selectedDeveloperIdAtom,
+    refreshOrdersAtom,
+} from "@/atoms";
 import ProjectSelector from "@/app/components/ProjectSelector";
 import OrderBoard from "@/app/components/OrderBoard";
 import CreateOrderModal from "@/app/components/CreateOrderModal";
-import { setDeveloperId } from '@/userSlice'; // Импортируем action для обновления developerId
 
 const DeveloperDashboard: React.FC = () => {
-    const dispatch = useDispatch();
-    const { projects, selectedProjectId } = useSelector(
-        (state: RootState) => state.projects
+    const [projects, setProjects] = useAtom(projectsAtom);
+    const [selectedProjectId, setSelectedProjectId] = useAtom(
+        selectedProjectIdAtom
     );
-    // const { developerId } = useSelector(
-    //     (state: RootState) => state.user // Измените на правильный путь, если у вас другой редуктор
-    // ); // Получаем developerId из состояния пользователя
+    const [selectedDeveloperId, setSelectedDeveloperId] = useAtom(
+        selectedDeveloperIdAtom
+    );
+    const [refreshOrders, setRefreshOrders] = useAtom(refreshOrdersAtom);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     useEffect(() => {
@@ -27,49 +30,73 @@ const DeveloperDashboard: React.FC = () => {
                     throw new Error("Error fetching projects");
                 }
                 const data = await response.json();
-                dispatch(setProjects(data));
+                setProjects(data);
             } catch (error) {
                 console.error("Failed to load projects:", error);
             }
         };
         fetchProjects();
-    }, [dispatch]);
+    }, [setProjects]);
+
+    const handleProjectSelect = (projectId: number, developerId: number) => {
+        setSelectedProjectId(projectId);
+        setSelectedDeveloperId(developerId);
+    };
+
+    const handleOrderCreated = () => {
+        setIsCreateModalOpen(false);
+        setRefreshOrders((prev) => !prev);
+    };
 
     return (
-        <div className="flex h-screen bg-gray-100">
-            <Sidebar />
-            <div className="flex-1 overflow-auto">
-                <div className="container mx-auto p-6">
-                    <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+            <div className="container mx-auto px-4 py-8">
+                <header className="mb-8">
+                    <h1 className="text-4xl font-extrabold text-gray-800 mb-2">
                         Панель девелопера
                     </h1>
+                    <p className="text-gray-600">
+                        Управляйте своими проектами и заказами эффективно
+                    </p>
+                </header>
+
+                <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                        Выберите проект
+                    </h2>
                     <ProjectSelector
                         projects={projects}
-                        onSelect={(id) => dispatch(setSelectedProject(id))}
+                        onSelect={handleProjectSelect}
                     />
-                    {selectedProjectId !== null && (
-                        <>
+                </div>
+
+                {selectedProjectId !== null && (
+                    <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-gray-800">
+                                Управление заказами
+                            </h2>
                             <button
-                                className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow transition duration-200"
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow transition duration-200 transform hover:scale-105"
                                 onClick={() => setIsCreateModalOpen(true)}
                             >
                                 Создать новый заказ
                             </button>
-                            <OrderBoard projectId={selectedProjectId} />
-                        </>
-                    )}
-                    {isCreateModalOpen && selectedProjectId !== null && (
+                        </div>
+                        <OrderBoard projectId={selectedProjectId} />
+                    </div>
+                )}
+
+                {isCreateModalOpen &&
+                    selectedProjectId !== null &&
+                    selectedDeveloperId !== null && (
                         <CreateOrderModal
                             projectId={selectedProjectId}
-                            developerId={developerId ?? 0} // Используем developerId из состояния
+                            developerId={selectedDeveloperId}
                             onClose={() => setIsCreateModalOpen(false)}
-                            onOrderCreated={() => {
-                                setIsCreateModalOpen(false);
-                                // Здесь можно добавить логику для обновления списка заказов
-                            }}
+                            onOrderCreated={handleOrderCreated}
                         />
                     )}
-                </div>
             </div>
         </div>
     );

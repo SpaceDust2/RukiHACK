@@ -1,33 +1,31 @@
 "use client";
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store'; // Подключите корневой тип состояния
-import { setDeveloperId } from '@/userSlice'; // Импортируйте action
+import { useAtom } from 'jotai';
+import { refreshOrdersAtom } from '@/atoms';
 
 interface CreateOrderModalProps {
-  projectId: string;
-  developerId: number | null; // Обновлено для поддержки null
+  projectId: number;
+  developerId: number;
   onClose: () => void;
   onOrderCreated: () => void;
 }
 
 const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ projectId, developerId, onClose, onOrderCreated }) => {
+  const [, setRefreshOrders] = useAtom(refreshOrdersAtom);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [payment, setPayment] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [requirements, setRequirements] = useState(['']);
+  const [cost, setCost] = useState('');
+  const [status, setStatus] = useState('NEW');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const orderData = {
       projectId,
-      developerId: developerId ?? 0, // Используем значение из Redux Store или 0 если не задано
+      developerId,
       title,
       description,
-      cost: parseFloat(payment),
-      status: 'SEARCHING'
+      cost: parseFloat(cost),
+      status
     };
 
     try {
@@ -37,8 +35,8 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ projectId, develope
         body: JSON.stringify(orderData),
       });
       if (response.ok) {
+        setRefreshOrders(prev => !prev);
         onOrderCreated();
-        onClose();
       } else {
         const errorData = await response.json();
         console.error('Failed to create order:', errorData.error);
@@ -50,15 +48,6 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ projectId, develope
     }
   };
 
-  const addRequirement = () => {
-    setRequirements([...requirements, '']);
-  };
-
-  const updateRequirement = (index: number, value: string) => {
-    const updatedRequirements = [...requirements];
-    updatedRequirements[index] = value;
-    setRequirements(updatedRequirements);
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -83,46 +72,21 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ projectId, develope
           <input
             type="number"
             className="w-full p-2 border rounded-lg"
-            placeholder="Оплата (руб.)"
-            value={payment}
-            onChange={(e) => setPayment(e.target.value)}
+            placeholder="Стоимость (руб.)"
+            value={cost}
+            onChange={(e) => setCost(e.target.value)}
             required
           />
-          <input
-            type="date"
+          <select
             className="w-full p-2 border rounded-lg"
-            placeholder="Дата начала"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
             required
-          />
-          <input
-            type="date"
-            className="w-full p-2 border rounded-lg"
-            placeholder="Дата окончания"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-          <div>
-            <h4 className="font-semibold mb-2">Требования:</h4>
-            {requirements.map((req, index) => (
-              <input
-                key={index}
-                type="text"
-                className="w-full p-2 border rounded-lg mb-2"
-                placeholder={`Требование ${index + 1}`}
-                value={req}
-                onChange={(e) => updateRequirement(index, e.target.value)}
-              />
-            ))}
-            <button
-              type="button"
-              onClick={addRequirement}
-              className="text-blue-500 hover:text-blue-600 transition duration-200"
-            >
-              + Добавить требование
-            </button>
-          </div>
+          >
+            <option value="NEW">Новый</option>
+            <option value="IN_PROGRESS">В процессе</option>
+            <option value="COMPLETED">Завершен</option>
+          </select>
           <div className="flex justify-end space-x-2">
             <button
               type="button"
